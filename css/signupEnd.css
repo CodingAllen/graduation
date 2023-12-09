@@ -1,0 +1,24 @@
+.custom-bg {
+    background-color: 	#FFFACD; 
+}
+
+.custom-btn {
+    background-color: #efe550; 
+    border-color: #87CEFA;
+    color: 	#ffffff; 
+}
+
+.custom-btn:hover {
+    background-color: 	#87CEFA; 
+}
+
+.custom-alert {
+    background-color: 	#CD853F; 
+    color:	#ffffff; 
+    border-color: #87CEFA; 
+}
+
+
+.custom-alert .alert-heading {
+    color: #ffffff;
+}

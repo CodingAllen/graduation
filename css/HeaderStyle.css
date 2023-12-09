@@ -1,0 +1,81 @@
+.bg-custom {
+  /*background-color: #87CEEB !important; *//* 这是天蓝色的颜色代码 */
+}
+  /* style.css */
+  .circle-cropped {
+    border-radius: 50%; /* 使图片圆形 */
+    width: 100px;  /* 设置图片宽度 */
+    height: 100px; /* 设置图片高度与宽度相同 */
+    object-fit: cover; /* 图片缩放以填充空间 */
+    overflow: hidden; /* 确保超出圆形的部分不可见 */
+    object-position: center; /* 图片居中 */
+    transition: transform 0.3s ease; /* 添加平滑的变换效果 */
+    transform-origin: center center; /* 设置变换的原点为中心 */
+}
+
+.circle-cropped:hover {
+    transform: scale(1.5); /* 鼠标悬停时放大图片 1.5 倍 */
+}
+
+
+  /* custom.css */
+
+/* custom.css */
+.navbar .navbar-nav .nav-link {
+ /*color: white !important;*/
+}
+
+/* 如果你希望鼠标悬停时也有特别的颜色变化可以添加以下规则 */
+.navbar .navbar-nav .nav-link:hover,
+.navbar .navbar-nav .nav-link:focus {
+  color: #ff0000 !important; /* 浅灰色的hover效果 */
+}
+
+
+.nav-link {
+  font-family: 'Roboto', sans-serif !important;
+}
+/* HeaderStyle.css 或相应的 CSS 文件 */
+.form-inline .form-control {
+  width: 180px; /* 根据需要调整宽度 */
+}
+
+@media (max-width: 768px) {
+  .form-inline {
+      width: 100%;
+  }
+}
+
+/* 搜索按钮样式 */
+.btn-outline-success {
+  color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-outline-success:hover {
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+/* 调整搜索框和按钮在小屏幕下的样式 */
+@media (max-width: 576px) {
+  .form-inline .form-control {
+      width: 100%;
+      margin-bottom: 10px;
+  }
+  .form-inline .btn {
+      width: 100%;
+  }
+}
+.circle-cropped {
+  
+  transition: transform 0.3s ease; /* 平滑过渡效果 */
+  display: block; /* 确保图片正确显示 */
+}
+
+.circle-cropped:hover {
+  transform: scale(2); /* 鼠标悬停时放大两倍 */
+}
+
+
