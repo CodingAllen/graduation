@@ -46,9 +46,7 @@ class OrderDAO{
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             $orderDetails->user_name = $user ? $user['full_name'] : 'Unknown';
 
-            // 获取联系地址
-            $contactDAO = new ContactDAO();
-            $orderDetails->contact_address = $contactDAO->get_address_by_user_id($order->contact_id);
+           
 
             // 获取商品名称
             $goodsDAO = new GoodsDAO();
@@ -111,5 +109,26 @@ class OrderDAO{
             throw $e;
         }
     }
+    public function removeDuplicateOrders() {
+        try {
+            $dbh = DAO::get_db_connect();
+
+            // 删除具有相同 order_date 且 order_id 较大的订单
+            $query = "DELETE o
+                      FROM [Orders] o
+                      INNER JOIN (
+                          SELECT MAX(order_id) as max_order_id, order_date
+                          FROM [Orders]
+                          GROUP BY order_date
+                          HAVING COUNT(order_id) > 1
+                      ) dups ON o.order_id = dups.max_order_id";
+
+            // 执行删除操作
+            $dbh->exec($query);
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            throw $e;
+        }
+}
 }
 ?>

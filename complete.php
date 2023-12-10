@@ -88,6 +88,7 @@ $order_id = $orderDAO->create_order($order);
 if ($order_id) {
     $goodsDAO->setStockToZero($goods_id);
     sendThankYouEmail($user->email, $user->username, $goods->goods_name, './images/goodsimagesL/' . $goods->goods_img_large, $goods->price);
+    $orderDAO->removeDuplicateOrders();
 }
 
 ?>
