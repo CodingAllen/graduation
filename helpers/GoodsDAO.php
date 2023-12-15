@@ -19,6 +19,8 @@ class Goods
     public string $goods_detail;
     public ?string $order_date = null;
     public ?int $buyer_id = null; 
+
+   
 }
 class Category {
     public int $category_id;
@@ -187,6 +189,27 @@ public function is_goods_purchased($goods_id) {
     $stmt->execute();
     $count = $stmt->fetchColumn();
     return $count > 0;
+}
+public function delete_goods(int $goods_id): bool {
+    try {
+        $dbh = DAO::get_db_connect(); // 假设这是获取数据库连接的方法
+
+        // 准备删除语句
+        $stmt = $dbh->prepare("DELETE FROM Goods WHERE goods_id = :goods_id");
+
+        // 绑定参数
+        $stmt->bindParam(':goods_id', $goods_id, PDO::PARAM_INT);
+
+        // 执行删除操作
+        $stmt->execute();
+
+        // 检查是否有行被删除
+        return $stmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        // 错误处理
+        error_log('Database error: ' . $e->getMessage());
+        return false;
+    }
 }
 }
 ?>

@@ -130,5 +130,25 @@ class OrderDAO{
             throw $e;
         }
 }
+public function delete_order(int $order_id): bool {
+    try {
+        $dbh = DAO::get_db_connect();
+
+        // 准备删除语句
+        $stmt = $dbh->prepare("DELETE FROM [Orders] WHERE order_id = :order_id");
+
+        // 绑定参数
+        $stmt->bindParam(':order_id', $order_id, PDO::PARAM_INT);
+
+        // 执行删除操作
+        $stmt->execute();
+
+        // 检查是否有行被删除
+        return $stmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        error_log('Database error: ' . $e->getMessage());
+        throw $e;
+    }
+}
 }
 ?>

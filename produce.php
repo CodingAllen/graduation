@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $price = $_POST['price'] ?? '';
     $origin = $_POST['origin'] ?? '';
     $delivery_days = $_POST['delivery_days'] ?? '';
-    $stock = isset($_POST['stock']) ? 1 : 0; // 检查是否勾选在库
+    $stock = 1; // 检查是否勾选在库
     $payer = isset($_POST['payer']) ? 1 : 0; // 检查是否勾选卖家支付邮费
     if (!isset($_SESSION['user']) || !($_SESSION['user'] instanceof User)) {
         // 如果User对象不存在或不是预期类型，则重定向到登录页面
@@ -134,17 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="price">単価:</label>
                 <input type="text" class="form-control" id="price" name="price" required>
             </div>
-            <div class="form-group">
-                <label>在库:</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="stock" id="stockIn" value="1" checked>
-                    <label class="form-check-label" for="stockIn">在庫</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="stock" id="stockOut" value="0">
-                    <label class="form-check-label" for="stockOut">完売</label>
-                </div>
-            </div>
+           
             <div class="form-group">
                 <label>発送料金負担者:</label>
                 <div class="form-check form-check-inline">

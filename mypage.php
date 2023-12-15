@@ -1,42 +1,34 @@
 <?php
-
 require_once './helpers/UserDAO.php';
+require_once './helpers/GoodsDAO.php';
+require_once './helpers/OrderDAO.php';
+
 $userDao = new UserDAO();
+$goodsDAO = new GoodsDAO();
+$orderDAO = new OrderDAO();
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-if (!empty($_SESSION['user'])) {
-    $user = $_SESSION['user'];
-} else {
+
+
+if (empty($_SESSION['user'])) {
     header('Location: login.php');
     exit;
 }
 
-if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
-    $userDao = new UserDAO();
-    $user = $_SESSION['user'];
+$user = $_SESSION['user'];
 
-    $uploadDir = 'images/userIcons/'; // 指定上传目录
+// アップロード
+if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
+    $uploadDir = 'images/userIcons/';
     $fileName = $_FILES['avatar']['name'];
     $filePath = $uploadDir . $fileName;
 
-    // 文件类型和大小的检查可以在这里进行
-    // 例如，检查文件大小不超过一个特定的限制，文件类型为图片等
-
-    // 将文件移动到指定目录
     if (move_uploaded_file($_FILES['avatar']['tmp_name'], $filePath)) {
-        // 更新数据库中的头像信息
         $user->icon_image = $fileName;
-
-        // 更新数据库
-        // 这里你可能需要添加一个方法到UserDAO类来更新用户信息
         $userDao->updateUser($user);
-        // 具体实现取决于你的UserDAO类的设计
-
-        // 更新会话中的用户信息
         $_SESSION['user'] = $user;
-
-        // 重定向回mypage
         header('Location: mypage.php');
         exit;
     } else {
@@ -44,18 +36,63 @@ if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
     }
 }
 
-// 处理用户名更新
+// 名前更新
 if (isset($_POST['update_username'])) {
     $newUsername = trim($_POST['new_username']);
-    // 对新用户名进行验证和处理
     $user->username = $newUsername;
     $userDao->updateUser($user);
     $_SESSION['user'] = $user;
-
     header('Location: mypage.php');
     exit;
 }
+
+
+
+// 購入履歴の削除
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_orders'])) {
+
+    foreach ($_POST['delete_orders'] as $order_id) {
+
+        $order_id = (int)$order_id;
+        $orderDAO->delete_order($order_id);
+    }
+
+
+    header('Location: mypage.php');
+    exit();
+}
+
+// 出品履歴の取得
+function getSoldGoods($user_id)
+{
+    global $goodsDAO;
+    return $goodsDAO->get_history_by_seller($user_id);
+}
+
+// こうにゅう履歴の取得
+function getPurchasedGoods($user_id)
+{
+    global $goodsDAO, $orderDAO;
+    $purchasedGoods = [];
+    $orders = $orderDAO->get_orders_by_buyer($user_id);
+    foreach ($orders as $order) {
+        $goods = $goodsDAO->get_goods_by_id($order->goods_id);
+        $purchasedGoods[] = [
+            'order_id' => $order->order_id,
+            'goods' => $goods
+        ];
+    }
+    return $purchasedGoods;
+}
+
+
+
+$soldGoods = getSoldGoods($user->user_id);
+$purchasedGoods = getPurchasedGoods($user->user_id);
+
+include 'header.php';
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -159,7 +196,7 @@ if (isset($_POST['update_username'])) {
 </head>
 
 <body>
-    <?php include 'header.php'; ?>
+
 
     <!-- header -->
     <div class="container-fluid header1 text-center marginb">
@@ -181,63 +218,112 @@ if (isset($_POST['update_username'])) {
         </form>
     </div>
     <div class="container my-4">
+        <!-- 售出履历部分 -->
         <div class="row">
-            <div class="col-lg-12">
-                <!-- 用户欢迎信息 -->
+            <div class="col-lg-6">
+                <div class="card my-3">
+                    <div class="card-header">
+                        <h4>出品履歴</h4>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($soldGoods)) : ?>
+                            <ul class="list-group">
+                                <?php foreach ($soldGoods as $goods) : ?>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <img src="./images/goodsimagesS/<?= htmlspecialchars($goods->goods_img_small) ?>" alt="<?= htmlspecialchars($goods->goods_name) ?>" class="mr-3" style="width: 50px; height: auto;">
+                                        <div>
+                                            <a href="goods.php?goods_id=<?= htmlspecialchars($goods->goods_id) ?>">
+                                                <?= htmlspecialchars($goods->goods_name) ?> - ¥<?= htmlspecialchars($goods->price) ?>
+                                            </a>
+                                            <?php if ($goods->stock == 0) : ?>
+                                                - 販売済み
+                                                <?php if (isset($goods->order_date)) : ?>
+                                                    - 時間: <?= htmlspecialchars($goods->order_date) ?>
+                                                <?php endif; ?>
 
+                                            <?php else : ?>
+                                                - 出品中
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else : ?>
+                            <p class="text-center">販売記録はありません。</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 购入履历部分 -->
+            <div class="col-lg-6">
+                <div class="card my-3">
+                    <div class="card-header">
+                        <h4>買い物履歴</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="mypage.php">
+                            <?php if (!empty($purchasedGoods)) : ?>
+                                <ul class="list-group">
+                                    <?php foreach ($purchasedGoods as $item) : ?>
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <input type="checkbox" name="delete_orders[]" value="<?= htmlspecialchars($item['order_id']) ?>" class="mr-3">
+                                            <img src="./images/goodsimagesS/<?= htmlspecialchars($item['goods']->goods_img_small) ?>" alt="<?= htmlspecialchars($item['goods']->goods_name) ?>" class="mr-3" style="width: 50px; height: auto;">
+                                            <a href="goods.php?goods_id=<?= htmlspecialchars($item['goods']->goods_id) ?>">
+                                                <?= htmlspecialchars($item['goods']->goods_name) ?> - ¥<?= htmlspecialchars($item['goods']->price) ?>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <button type="submit" class="btn btn-danger mt-3">削除</button>
+                            <?php else : ?>
+                                <p class="text-center">購入記録はありません。</p>
+                            <?php endif; ?>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 售出履历和购入履历 -->
-        <div class="row">
-            <div class="col-lg-6">
-                <?php include "sell_history.php"; ?>
-            </div>
-            <div class="col-lg-6">
-                <?php include "buy_history.php"; ?>
-            </div>
-        </div>
-    </div>
 
 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                // Add smooth scrolling to all links
+                $("a").on('click', function(event) {
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Add smooth scrolling to all links
-            $("a").on('click', function(event) {
+                    // Make sure this.hash has a value before overriding default behavior
+                    if (this.hash !== "") {
+                        // Prevent default anchor click behavior
+                        event.preventDefault();
 
-                // Make sure this.hash has a value before overriding default behavior
-                if (this.hash !== "") {
-                    // Prevent default anchor click behavior
-                    event.preventDefault();
+                        // Store hash
+                        var hash = this.hash;
 
-                    // Store hash
-                    var hash = this.hash;
+                        // Using jQuery's animate() method to add smooth page scroll
+                        // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
+                        $('html, body').animate({
+                            scrollTop: $(hash).offset().top
+                        }, 800, function() {
 
-                    // Using jQuery's animate() method to add smooth page scroll
-                    // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
-                    $('html, body').animate({
-                        scrollTop: $(hash).offset().top
-                    }, 800, function() {
-
-                        // Add hash (#) to URL when done scrolling (default click behavior)
-                        window.location.hash = hash;
-                    });
-                } // End if
+                            // Add hash (#) to URL when done scrolling (default click behavior)
+                            window.location.hash = hash;
+                        });
+                    } // End if
+                });
             });
-        });
-    </script>
+        </script>
 
-    <script>
-        function editUsername() {
-            // 隐藏显示用户名的元素
-            document.getElementById('username-display').style.display = 'none';
-            // 显示编辑表单
-            document.getElementById('username-form').style.display = 'block';
-        }
-    </script>
+        <script>
+            function editUsername() {
+                // 隐藏显示用户名的元素
+                document.getElementById('username-display').style.display = 'none';
+                // 显示编辑表单
+                document.getElementById('username-form').style.display = 'block';
+            }
+        </script>
 </body>
 <?php include('footer.php'); ?>
 

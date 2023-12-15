@@ -2,7 +2,7 @@
 require_once './helpers/UserDAO.php';
 require_once './helpers/GoodsDAO.php';
 require_once './helpers/CommentDAO.php';
-require_once './helpers/FavoriteDAO.php'; // 根据您的项目结构调整路径
+require_once './helpers/FavoriteDAO.php';
 
 session_start();
 if (isset($_GET['goods_id']) && is_numeric($_GET['goods_id'])) {
@@ -214,19 +214,25 @@ if (isset($_GET['goods_id'])) {
             <div class="row no-gutters">
                 <div class="col-md-6">
                     <div class="images-container">
-                        <img src="./images/goodsimagesL/<?= $goods->goods_img_large ?>" class="card-img-top" alt="<?= $goods->goods_name ?>">
-                        <img src="./images/goodsimagesS/<?= $goods->goods_img_small ?>" class="card-img-top" alt="<?= $goods->goods_name ?>">
+                        <img src="./images/goodsimagesL/<?= $goods->goods_img_large ?>" class="card-img-top"
+                            alt="<?= $goods->goods_name ?>">
+                        <img src="./images/goodsimagesS/<?= $goods->goods_img_small ?>" class="card-img-top"
+                            alt="<?= $goods->goods_name ?>">
                     </div>
                     <!-- 商品详情卡片 -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <h5 class="card-title">商品详情</h5>
-                            <p class="card-text"><?= htmlspecialchars($goods->goods_detail, ENT_QUOTES, 'UTF-8') ?></p>
-                            <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id == $goods->user_id) : ?>
+                            <h5 class="card-title">商品詳細</h5>
+                            <p class="card-text">
+                                <?= htmlspecialchars($goods->goods_detail, ENT_QUOTES, 'UTF-8') ?>
+                            </p>
+                            <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id == $goods->user_id): ?>
                                 <button onclick="showEditGoodsDetailForm()" class="btn btn-link">商品詳細を編集する</button>
-                                <form id="edit-goods-detail-form" action="goods.php?goods_id=<?= $goods_id ?>" method="post" style="display:none;">
+                                <form id="edit-goods-detail-form" action="goods.php?goods_id=<?= $goods_id ?>" method="post"
+                                    style="display:none;">
                                     <input type="hidden" name="goods_id" value="<?= $goods->goods_id ?>">
-                                    <textarea name="new_goods_detail" class="form-control mb-2"><?= $goods->goods_detail ?></textarea>
+                                    <textarea name="new_goods_detail"
+                                        class="form-control mb-2"><?= $goods->goods_detail ?></textarea>
                                     <button type="submit" class="btn btn-primary">更新</button>
                                 </form>
 
@@ -240,91 +246,115 @@ if (isset($_GET['goods_id'])) {
 
                 <div class="col-md-6">
                     <div class="card-body">
-                        <h5 class="card-title"><?= $goods->goods_name ?></h5>
-                        <?php if ($isPurchased) : ?>
+                        <h5 class="card-title">
+                            <?= $goods->goods_name ?>
+                        </h5>
+                        <?php if ($isPurchased): ?>
                             <div class="sold-out-alert">
                                 販売済み！！！
                             </div>
-                        <?php else : ?>
+                        <?php else: ?>
                             <!-- 正常显示商品信息 -->
+
+
+
                         <?php endif; ?>
                         <p class="card-text">
                             <i class="fas fa-tag"></i> 価格:
-                            <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id == $goods->user_id) : ?>
-                                <a href="#" id="edit-price-link" onclick="showEditPriceForm()" class="btn btn-link">¥<?= number_format($goods->price) ?></a>
-                        <form id="edit-price-form" action="goods.php?goods_id=<?= $goods_id ?>" method="post" style="display:none;">
-                            <input type="hidden" name="goods_id" value="<?= $goods->goods_id ?>">
-                            <input type="text" name="new_price" value="<?= $goods->price ?>" class="form-control mb-2">
-                            <button type="submit" class="btn btn-primary">更新</button>
-                        </form>
-
-                    <?php else : ?>
-                        ¥<?= number_format($goods->price) ?>
-                    <?php endif; ?>
-                    </p>
-
-                    <p class="card-text"><i class="fas fa-user"></i> 出品者: <?= htmlspecialchars($seller->username) ?></p>
-                    <!-- 其他商品信息 -->
-                    <p class="card-text"><i class="fas fa-info-circle"></i> 商品状態: <?= $status_map[$goods->status_id] ?? "未知" ?></p>
-                    <p class="card-text"><i class="fas fa-hourglass-half"></i> 発送までの日数: <?= $goods->delivery_days ?>日
-                    <p class="card-text"><i class="fas fa-credit-card"></i> 発送料金負担者: <?= $payers[$goods->payer] ?? "未知" ?></p>
-                    <p class="card-text"><?= $goods->recommend ? "<span class='badge badge-success'>おすすめ</span>" : "" ?></p>
-                    <?php if (isset($_SESSION['user'])) : ?>
-                        <form action="goods.php?goods_id=<?= $goods_id ?>" method="post">
-                            <input type="hidden" name="favorite_goods_id" value="<?= $goods->goods_id ?>">
-                            <button type="submit" name="add_to_favorite" class="btn btn-warning" <?= $isPurchased ? 'disabled' : '' ?>>お気に入りに追加</button>
-                        </form>
-                    <?php endif; ?>
-
-                    <div class="comments-section">
-                        <!-- 留言部分 -->
-                        <div class="comment-section card my-3">
-                            <div class="card-body">
-                                <?php if (isset($_SESSION['user'])) : ?>
-                                    <form action="goods.php?goods_id=<?= $goods_id ?>" method="POST">
-                                        <div class="form-group">
-                                            <textarea name="comment_text" class="form-control" required placeholder="コメント"></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">コメントする</button>
-                                    </form>
-                                <?php else : ?>
-                                    <p><a href="login.php">LogIn</a></p>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <!-- 显示留言 -->
-                        <div class="comments-display">
-                            <?php foreach ($comments as $comment) : ?>
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="media">
-                                            <img src="./images/userIcons/<?= htmlspecialchars($comment->icon_image, ENT_QUOTES, 'UTF-8') ?>" class="mr-3" alt="User Image" style="width: 50px; height: 50px;">
-                                            <div class="media-body">
-                                                <h5 class="mt-0"><?= htmlspecialchars($comment->username) ?></h5>
-                                                <?= htmlspecialchars($comment->comment_text) ?>
-                                            </div>
-                                        </div>
-
-                                        <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id == $comment->user_id) : ?>
-                                            <form action="goods.php" method="post">
-                                                <input type="hidden" name="comment_id" value="<?= $comment->comment_id ?>">
-                                                <input type="hidden" name="goods_id" value="<?= $goods_id ?>">
-                                                <button type="submit" name="delete_comment" class="btn btn-danger">削除</button>
-                                            </form>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-
-                        <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id != $goods->user_id) : ?>
-
-                            <form action="purchase.php" method="POST" class="form-inline">
+                            <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id == $goods->user_id): ?>
+                                <a href="#" id="edit-price-link" onclick="showEditPriceForm()" class="btn btn-link">¥
+                                    <?= number_format($goods->price) ?>
+                                </a>
+                            <form id="edit-price-form" action="goods.php?goods_id=<?= $goods_id ?>" method="post"
+                                style="display:none;">
                                 <input type="hidden" name="goods_id" value="<?= $goods->goods_id ?>">
-                                <button type="submit" name="add" class="btn btn-primary" <?= $isPurchased ? 'disabled' : '' ?>>購入</button>
+                                <input type="text" name="new_price" value="<?= $goods->price ?>" class="form-control mb-2">
+                                <button type="submit" class="btn btn-primary">更新</button>
+                            </form>
+
+                        <?php else: ?>
+                            ¥
+                            <?= number_format($goods->price) ?>
+                        <?php endif; ?>
+                        </p>
+
+                        <p class="card-text"><i class="fas fa-user"></i> 出品者:
+                            <?= htmlspecialchars($seller->username) ?>
+                        </p>
+                        <!-- 其他商品信息 -->
+                        <p class="card-text"><i class="fas fa-info-circle"></i> 商品状態:
+                            <?= $status_map[$goods->status_id] ?? "未知" ?>
+                        </p>
+                      
+                        <p class="card-text"><i class="fas fa-hourglass-half"></i> 発送までの日数:
+                            <?= $goods->delivery_days ?>日
+                        <p class="card-text"><i class="fas fa-credit-card"></i> 発送料金負担者:
+                            <?= $payers[$goods->payer] ?? "未知" ?>
+                        </p>
+                        <p class="card-text">
+                            <?= $goods->recommend ? "<span class='badge badge-success'>おすすめ</span>" : "" ?>
+                        </p>
+                        <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id != $goods->user_id): ?>
+                            <form action="goods.php?goods_id=<?= $goods_id ?>" method="post">
+                                <input type="hidden" name="favorite_goods_id" value="<?= $goods->goods_id ?>">
+                                <button type="submit" name="add_to_favorite" class="btn btn-warning" <?= $isPurchased ? 'disabled' : '' ?>>お気に入りに追加</button>
                             </form>
                         <?php endif; ?>
-                    </div>
+
+                        <div class="comments-section">
+                            <!-- 留言部分 -->
+                            <div class="comment-section card my-3">
+                                <div class="card-body">
+                                    <?php if (isset($_SESSION['user'])): ?>
+                                        <form action="goods.php?goods_id=<?= $goods_id ?>" method="POST">
+                                            <div class="form-group">
+                                                <textarea name="comment_text" class="form-control" required
+                                                    placeholder="コメント"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">コメントする</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <p><a href="login.php">LogIn</a></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <!-- 显示留言 -->
+                            <div class="comments-display">
+                                <?php foreach ($comments as $comment): ?>
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <div class="media">
+                                                <img src="./images/userIcons/<?= htmlspecialchars($comment->icon_image, ENT_QUOTES, 'UTF-8') ?>"
+                                                    class="mr-3" alt="User Image" style="width: 50px; height: 50px;">
+                                                <div class="media-body">
+                                                    <h5 class="mt-0">
+                                                        <?= htmlspecialchars($comment->username) ?>
+                                                    </h5>
+                                                    <?= htmlspecialchars($comment->comment_text) ?>
+                                                </div>
+                                            </div>
+
+                                            <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id == $comment->user_id): ?>
+                                                <form action="goods.php" method="post">
+                                                    <input type="hidden" name="comment_id" value="<?= $comment->comment_id ?>">
+                                                    <input type="hidden" name="goods_id" value="<?= $goods_id ?>">
+                                                    <button type="submit" name="delete_comment"
+                                                        class="btn btn-danger">削除</button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <?php if (isset($_SESSION['user']) && $_SESSION['user']->user_id != $goods->user_id): ?>
+
+                                <form action="purchase.php" method="POST" class="form-inline">
+                                    <input type="hidden" name="goods_id" value="<?= $goods->goods_id ?>">
+                                    <button type="submit" name="add" class="btn btn-primary" <?= $isPurchased ? 'disabled' : '' ?>>購入</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>

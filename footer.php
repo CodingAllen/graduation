@@ -13,8 +13,35 @@ $categories = $goodsDAO->get_all_categories();
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
   <style>
+  .company-logo {
+    width: 100px;
+    height: auto;
+    margin-top: 20px;
+}
+
+.site-footer {
+    background-color: #01596B;
+    font-size: 15px;
+    line-height: 24px;
+    color: #FFFFFF;
+    width: 100%;
+    margin: 0;
+    padding-top: 20px; /* 更新 */
+    /* 其他样式保持不变 */
+}
+
+.site-footer .col-md-3, .site-footer .col-md-6 {
+    padding: 20px;
+}
+
+.footer-links, .social-icons {
+    margin-bottom: 10px;
+}
+
+/* 其他样式保持不变 */
+
     .site-footer {
-      background-color: #87CEFA;
+      background-color: #01596B;
       /* 天蓝色 */
 
       font-size: 15px;
@@ -214,6 +241,40 @@ $categories = $goodsDAO->get_all_categories();
       background-color: #33353d;
       /* 可根据需要调整背景颜色 */
     }
+    .map-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .map-card {
+            flex: 1;
+            margin: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+
+        .map-card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        .map-header {
+            padding: 2px 16px;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        iframe {
+            width: 100%;
+            height: 200px;
+            border: 0;
+            border-radius: 0 0 5px 5px;
+            
+        }
+    
   </style>
 
 </head>
@@ -248,11 +309,24 @@ $categories = $goodsDAO->get_all_categories();
 
         <!-- 本社アクセス and Google Map -->
         <div class="col-md-6">
-          <!-- 本社アクセス Section -->
-          <h6><a href="map.php">>本社アクセス</a></h6>
-          <p>ビジネスの協力があれば、弊社にご相談ください。</p>
+    <!-- 本社アクセス Section -->
+    <div class="company-header">
+        <img src="./images/WechatIMG41.jpg" alt="公司标志" class="company-logo">
+        <h3><a href="map.php">株式会社 誠(マコト)グループ</a></h3>
+    </div>
+    <p>ビジネスの協力があれば、弊社にご相談ください。我们致力于提供最优质的服务。</p>
+    <!-- 公司地图 -->
+    <div class="map-container">
+        <div class="map-card">
+            <div class="map-header">本社</div>
+            <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCB4J5BH14tpPEGeffAhQx21TA2czW79XE&q=〒169-8522+東京都新宿区百人町1-25-4"></iframe>
         </div>
+    </div>
+</div>
+
       </div>
+ 
+
       <hr>
     </div>
     <div class="container">
@@ -274,6 +348,7 @@ $categories = $goodsDAO->get_all_categories();
       </div>
     </div>
   </footer>
+ 
 </body>
 
 </html>

@@ -77,6 +77,34 @@ class CommentDAO{
         $stmt->bindValue(':comment_id', $comment_id, PDO::PARAM_INT);
         $stmt->execute();
     }
+    public function make_recommend(){
+        $dbh = DAO::get_db_connect();
+    
+        // 先重置所有商品的推荐状态
+        $dbh->exec("UPDATE Goods SET recommend = 0");
+    
+        // 获取每个商品的评论数（排除商品发布者的评论）
+        $sql = "SELECT TOP 9 g.goods_id, COUNT(*) as comment_count 
+                FROM Comment c 
+                JOIN Goods g ON c.goods_id = g.goods_id 
+                WHERE c.user_id != g.user_id 
+                GROUP BY g.goods_id 
+                ORDER BY comment_count DESC";
+    
+        $stmt = $dbh->prepare($sql);
+        $stmt->execute();
+        $topGoods = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        // 遍历这些商品并更新其推荐状态
+        foreach ($topGoods as $goods) {
+            $sqlUpdate = "UPDATE Goods SET recommend = 1 WHERE goods_id = :goods_id";
+            $stmtUpdate = $dbh->prepare($sqlUpdate);
+            $stmtUpdate->bindValue(':goods_id', $goods['goods_id'], PDO::PARAM_INT);
+            $stmtUpdate->execute();
+        }
+    }
+    
+    
     
 }
 

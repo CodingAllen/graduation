@@ -44,6 +44,8 @@ if (!empty($_SESSION['user'])) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
@@ -56,7 +58,7 @@ if (!empty($_SESSION['user'])) {
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <!-- 添加搜索框 -->
+                
                 <li class="nav-item">
                     <form class="form-inline my-2 my-lg-0" action="index.php" method="get">
                         <input class="form-control mr-sm-2" type="search" placeholder="商品検索" aria-label="Search" name="query">
@@ -65,12 +67,12 @@ if (!empty($_SESSION['user'])) {
                         </button>
                     </form>
                 </li>
-                <!-- 出品按钮，依据登录状态决定行为 -->
+                
                 <li class="nav-item">
                     <?php if (isset($user) && is_object($user)) : ?>
-                        <a class="nav-link" href="produce.php">出品</a> <!-- 用户已登录，直接出品 -->
+                        <a class="nav-link" href="produce.php">出品</a> 
                     <?php else : ?>
-                        <a class="nav-link" href="login.php">出品</a> <!-- 用户未登录，引导登录 -->
+                        <a class="nav-link" href="login.php">出品</a> 
                     <?php endif; ?>
                 </li>
                 <li class="nav-item">
@@ -80,7 +82,7 @@ if (!empty($_SESSION['user'])) {
                     <a class="nav-link" href="like.php">お気に入り</a>
                 </li>
                 <?php if (isset($user) && is_object($user)) : ?>
-                    <!-- 通知下拉菜单 -->
+                    
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             お知らせ
@@ -97,7 +99,7 @@ if (!empty($_SESSION['user'])) {
 
                             <?php foreach ($messages as $message) : ?>
 
-                                <!-- 对于通知 -->
+                              
 
                                 <a class="dropdown-item" href="mark_read.php?notification_id=<?= $message->notification_id ?>">
                                     <p>日電フリ事務局からのメッセージ：</p>
@@ -105,20 +107,20 @@ if (!empty($_SESSION['user'])) {
                                 </a>
                             <?php endforeach; ?>
                             <?php foreach ($newComments as $comment) : ?>
-                                <!-- 对于评论 -->
+                               
                                 <a class="dropdown-item" href="mark_read.php?comment_id=<?= $comment->comment_id ?>">
-                                    あなたの <?= htmlspecialchars($comment->goods_name) ?> 商品で <?= htmlspecialchars($comment->username) ?> 様からのコメントがあります
+                                    あなたの <?= htmlspecialchars($comment->goods_name) ?> 商品で<?= htmlspecialchars($comment->username) ?> 様からのコメントがあります
                                 </a>
                             <?php endforeach; ?>
                         </div>
                     </li>
-                    <!-- 用户头像 -->
+                    
                     <li class="nav-item">
-                        <a class="nav-link d-lg-none" href="userprofile.php"> <!-- 用于小屏幕 -->
+                        <a class="nav-link d-lg-none" href="userprofile.php"> 
                             <img src="images/userIcons/<?= htmlspecialchars($user->icon_image ?? 'default_icon.png', ENT_QUOTES, 'UTF-8') ?>" class="rounded-circle" alt="User Icon" style="width: 30px; height: 30px; object-fit: cover;">
                             <?= htmlspecialchars($user->username ?? 'Unknown User', ENT_QUOTES, 'UTF-8') ?>
                         </a>
-                        <span class="navbar-text d-none d-lg-block"> <!-- 用于大屏幕 -->
+                        <span class="navbar-text d-none d-lg-block"> 
                             <img src="images/userIcons/<?= htmlspecialchars($user->icon_image ?? 'default_icon.png', ENT_QUOTES, 'UTF-8') ?>" class="rounded-circle" alt="User Icon" style="width: 30px; height: 30px; object-fit: cover;">
                             <?= htmlspecialchars($user->username ?? 'Unknown User', ENT_QUOTES, 'UTF-8') ?>さん
                         </span>
@@ -135,9 +137,9 @@ if (!empty($_SESSION['user'])) {
         </div>
     </nav>
 
-    <!-- Your content here -->
 
-    <!-- 引入Bootstrap JavaScript 和依赖的 Popper.js -->
+
+ 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

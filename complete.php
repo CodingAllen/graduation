@@ -49,7 +49,7 @@ $order->payment_id = 1; // 假设支付方式 ID 为 1
 $order_id = $orderDAO->create_order($order);
 
 // 邮件发送函数
-function sendThankYouEmail($to, $username, $goodsName, $goodsImg, $price)
+function sendThankYouEmail($to, $username, $goodsName, $goodsImg, $price,$order_id)
 {
     $mail = new PHPMailer(true);
     $mail->CharSet = 'utf-8';
@@ -75,7 +75,7 @@ function sendThankYouEmail($to, $username, $goodsName, $goodsImg, $price)
         // Content
         $mail->isHTML(true); // Set email format to HTML
         $mail->Subject = 'Thank you for your purchase!';
-        $mail->Body    = $username . '様' . ',<br>ご購入ありがとうございました。' . '<br>' . $goodsName . '.<br><img src="cid:' . $cid . '" alt="' . $goodsName . '"><br>価格： ' . $price . '円';
+        $mail->Body    = $username . '様' . ',<br>ご購入ありがとうございました。' . '<br>' . '商品名'.$goodsName . '.<br><img src="cid:' . $cid . '" alt="' . $goodsName . '"><br>価格： ' . $price . '円'. "<br>オーダーID: ". $order_id ;
 
         $mail->send();
     } catch (Exception $e) {
@@ -87,7 +87,7 @@ $order_id = $orderDAO->create_order($order);
 // 发送邮件
 if ($order_id) {
     $goodsDAO->setStockToZero($goods_id);
-    sendThankYouEmail($user->email, $user->username, $goods->goods_name, './images/goodsimagesL/' . $goods->goods_img_large, $goods->price);
+    sendThankYouEmail($user->email, $user->username, $goods->goods_name, './images/goodsimagesL/' . $goods->goods_img_large, $goods->price, $order_id);
     $orderDAO->removeDuplicateOrders();
 }
 

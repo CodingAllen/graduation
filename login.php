@@ -1,14 +1,15 @@
  
 <?php
 require_once './helpers/UserDAO.php';
-require_once 'vendor/autoload.php';
-use Google\Service\Oauth2 as Google_Service_Oauth2;
+require_once './helpers/AdminDAO.php';
+//require_once 'vendor/autoload.php';
+//use Google\Service\Oauth2 as Google_Service_Oauth2;
 
 $email = '';
 $errs = [];
 session_start();
 
-$client = new Google_Client();
+/*$client = new Google_Client();
 $client->setClientId('323378874098-4gn8rjjapqnsbeljqlbtrqfoaqi4ackr.apps.googleusercontent.com'); // 替换为您的Google Client ID
 $client->setClientSecret('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'); // 替换为您的Google Client Secret
 $client->setRedirectUri('http://localhost:3000'); // 替换为您的Google Redirect URI
@@ -50,7 +51,7 @@ if (isset($_GET['code'])) {
 }
 
 
-var_dump($_SESSION);
+var_dump($_SESSION);*/
 if (!empty($_SESSION['user'])) {
     header('Location: index.php');
     exit;
@@ -59,14 +60,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password_user = $_POST['password_user'];
 
+    // 先尝试从 AdminDAO 获取管理员
+    $adminDAO = new AdminDAO();
+    $admin = $adminDAO->get_admin($email, $password_user);
+
+    if ($admin !== false) {
+        // 如果是管理员，则设置 session 并跳转到 Admin.php
+        session_regenerate_id(true);
+        $_SESSION['admin'] = $admin;
+        header('Location: Admin.php');
+        exit;
+    }
+
+    // 针对普通用户的邮箱格式验证
     if ($email === '') {
         $errs[] = 'メールアドレスを入力してください。';
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errs[] = 'メールアドレスの形式に誤りがあります。';
     }
+
     if ($password_user === '') {
         $errs[] = 'パスワードを入力してください。';
     }
+
     if (empty($errs)) {
         $userDAO = new UserDAO();
         $user = $userDAO->get_user($email, $password_user);
@@ -172,25 +188,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="error"><?= htmlspecialchars($err) ?></div>
             <?php endforeach; ?>
 
-            <!-- Login form -->
-            <form action="login.php" method="post">
-                <div>
-                    <label for="email">メールアドレス</label>
-                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
-                </div>
-                <div>
-                    <label for="password_user">パスワード</label>
-                    <input type="password" id="password_user" name="password_user" required>
-                </div>
-                <div>
-                    <input type="submit" value="ログイン">
-                </div>
-            </form>
-            <!-- 在 login.php 中添加谷歌登录按钮 -->
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="<?= htmlspecialchars($login_url) ?>" class="fa fa-google" style="font-size:24px;color:red"></a>
-                <!-- 其他链接 -->
-            </div>
+            <!-- 登录表单 -->
+        <form action="login.php" method="post" novalidate>
+            <div>
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
+        </div>
+        <div>
+            <label for="password_user">パスワード</label>
+            <input type="password" id="password_user" name="password_user" required>
+        </div>
+        <div>
+            <input type="submit" value="ログイン">
+        </div>
+        </form>
+
+            
 
 
             <!-- Link to registration page -->
