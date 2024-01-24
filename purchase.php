@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_purchase'])) {
                 <h3>配送先住所</h3>
                 <!-- 配送地址 -->
                 <?php if (!empty($addresses)): ?>
-                    <form action="complete.php?goods_id=<?= htmlspecialchars($goods_id) ?>" method="post">
+                    <form action="checkout.php?goods_id=<?= htmlspecialchars($goods_id) ?>" method="post">
                         <?php foreach ($addresses as $address): ?>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="address_id" id="address" value="<?= htmlspecialchars($address['address']) ?>" checked>

@@ -39,6 +39,28 @@ if ($total_goods_count > 0) {
     // 如果没有商品，设置商品列表为空数组
     $goods_list = [];
 }
+// URLからソートオプションを取得
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'recommended';
+
+// ソートオプションに基づいて商品を取得
+// ソートオプションに基づいて商品を取得
+switch ($sort) {
+    case 'newest':
+        $goods_list = $goodsDAO->get_goods_by_date($page, $perPage, $category_id);
+        break;
+    case 'oldest':
+        $goods_list = $goodsDAO->get_goods_by_date($page, $perPage, $category_id, false);
+        break;
+    case 'recommended':
+        $goods_list = $goodsDAO->get_all_goods($page, $perPage, $category_id);
+        break;
+}
+
+// 検索クエリがある場合は、キーワードに基づく商品リストを取得
+if ($search_query) {
+    $goods_list = $goodsDAO->get_goods_by_keyword($search_query);
+}
+
 
 $recommended_goods = $goodsDAO->get_recommended_goods();
 
@@ -247,6 +269,8 @@ include('header.php');
             /* 图片会覆盖整个容器，可能被裁剪但不会被拉伸 */
             object-position: top;
             /* 图片对齐到容器的顶部，这样顶部不会被裁剪 */
+
+            
         }
     </style>
 </head>
@@ -301,6 +325,17 @@ include('header.php');
 
             <!-- 商品卡片 -->
             <main class="col-md-9">
+
+            <div class="text-center my-4">
+    <label for="sort">並び替え:</label>
+    <select id="sort" class="form-control" onchange="changeSort(this.value)">
+        <option value="recommended">オススメ順</option>
+        <option value="newest">古いもの</option>
+        <option value="oldest">新しいもの</option>
+    </select>
+</div>
+
+
                 <div class="row">
                     <?php foreach ($goods_list as $goods): ?>
                         <div class="col-md-3 mb-4 d-flex align-items-stretch">
@@ -334,12 +369,13 @@ include('header.php');
     </div>
 
     <div class="text-center my-4">
-        <?php if ($page > 1): ?>
-            <a href="index.php?page=<?= $page - 1 ?>" class="btn btn-page-navigation">前のページ</a>
-        <?php endif; ?>
-        <?php if ($page < $total_pages): ?>
-            <a href="index.php?page=<?= $page + 1 ?>" class="btn btn-page-navigation">次のページ</a>
-        <?php endif; ?>
+    <?php if ($page > 1): ?>
+    <a href="index.php?page=<?= $page - 1 ?>&sort=<?= $sort ?>" class="btn btn-page-navigation">前のページ</a>
+<?php endif; ?>
+<?php if ($page < $total_pages): ?>
+    <a href="index.php?page=<?= $page + 1 ?>&sort=<?= $sort ?>" class="btn btn-page-navigation">次のページ</a>
+<?php endif; ?>
+
     </div>
 
 
@@ -377,6 +413,24 @@ include('header.php');
             // 初始更新
             updateCaption();
         });
+
+ 
+        function changeSort(sortOption) {
+    var currentUrl = window.location.href.split('?')[0];
+    var newUrl = currentUrl + '?sort=' + sortOption + '&page=1';
+    window.location.href = newUrl;
+}
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var sortSelect = document.getElementById('sort');
+        var currentSort = new URLSearchParams(window.location.search).get('sort');
+
+        if (currentSort) {
+            sortSelect.value = currentSort;
+        }
+    });
+
     </script>
     <?php include('footer.php'); ?>
 

@@ -1,4 +1,7 @@
 <?php
+require_once './vendor/autoload.php';
+
+
 require_once './helpers/GoodsDAO.php';
 require_once './helpers/UserDAO.php';
 require_once './helpers/ContactDAO.php';
@@ -14,39 +17,57 @@ require_once 'PHPMailer/src/Exception.php';
 require_once 'PHPMailer/src/SMTP.php';
 
 session_start();
+\Stripe\Stripe::setApiKey('sk_test_51O4edBCq2Pgxw0Lu6vPTuJ8ZCSpo6ndDPONibAZkaPMmu0PcIlAOBDsFLnKo1MDd0tCsPoK0rzzpaiXo7nbnsJtA002SgJFToU');
 
 // 检查用户是否登录
 if (empty($_SESSION['user'])) {
     header('Location: login.php');
     exit;
 }
-if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-    header('Location: purchase.php');
-    exit;
+
+// 检查是否有 Stripe session ID
+if (isset($_GET['session_id'])) {
+    $session_id = $_GET['session_id'];
+
+    try {
+        $session = \Stripe\Checkout\Session::retrieve($session_id);
+        $goods_id = isset($session->metadata->goods_id) ? $session->metadata->goods_id : null;
+
+        if ($goods_id === null) {
+            throw new Exception('商品IDなし');
+        }
+
+
+        // 获取商品和用户信息
+        $goodsDAO = new GoodsDAO();
+        $goods = $goodsDAO->get_goods_by_id($goods_id);
+        $userDAO = new UserDAO();
+        $user = $userDAO->get_user_by_id($_SESSION['user']->user_id);
+
+        // 现在你可以创建订单
+        $orderDAO = new OrderDAO();
+        $order = new Orders();
+        $order->user_id = $user->user_id;
+        $order->goods_id = $goods_id;
+        $order->order_status_id = 1;
+        $order->order_date = date('Y-m-d H:i:s');
+        $order->payment_id = 1; // 根据实际情况设置
+
+        // 存储订单信息
+        $order_id = $orderDAO->create_order($order);
+
+        if ($order_id) {
+            sendThankYouEmail($user->email, $user->username, $goods->goods_name, './images/goodsimagesL/' . $goods->goods_img_large, $goods->price, $order_id);
+            $goodsDAO->setStockToZero($goods_id);
+        } else {
+            echo '订单创建失败。';
+        }
+    } catch (\Stripe\Exception\ApiErrorException $e) {
+        echo 'Stripe API 错误: ' . $e->getMessage();
+    }
+} else {
+    echo '无法获取 Stripe 会话信息。';
 }
-
-// 获取用户信息
-$userDAO = new UserDAO();
-$user = $userDAO->get_user_by_id($_SESSION['user']->user_id);
-
-// 从 POST 请求获取商品 ID
-$goods_id = isset($_POST['goods_id']) ? intval($_POST['goods_id']) : null;
-
-// 获取商品信息
-$goodsDAO = new GoodsDAO();
-$goods = $goodsDAO->get_goods_by_id($goods_id);
-
-// 创建新的订单对象
-$orderDAO = new OrderDAO();
-$order = new Orders();
-$order->user_id = $_SESSION['user']->user_id;
-$order->goods_id = $goods_id;
-$order->order_status_id = 1; // 假设 1 是订单状态 "已创建"
-$order->order_date = date('Y-m-d H:i:s');
-$order->payment_id = 1; // 假设支付方式 ID 为 1
-
-// 存储订单信息
-$order_id = $orderDAO->create_order($order);
 
 // 邮件发送函数
 function sendThankYouEmail($to, $username, $goodsName, $goodsImg, $price,$order_id)
@@ -85,11 +106,11 @@ function sendThankYouEmail($to, $username, $goodsName, $goodsImg, $price,$order_
 
 $order_id = $orderDAO->create_order($order);
 // 发送邮件
-if ($order_id) {
-    $goodsDAO->setStockToZero($goods_id);
-    sendThankYouEmail($user->email, $user->username, $goods->goods_name, './images/goodsimagesL/' . $goods->goods_img_large, $goods->price, $order_id);
-    $orderDAO->removeDuplicateOrders();
-}
+// if ($order_id) {
+//     $goodsDAO->setStockToZero($goods_id);
+//     sendThankYouEmail($user->email, $user->username, $goods->goods_name, './images/goodsimagesL/' . $goods->goods_img_large, $goods->price, $order_id);
+//     $orderDAO->removeDuplicateOrders();
+// }
 
 ?>
 

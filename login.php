@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 如果是管理员，则设置 session 并跳转到 Admin.php
         session_regenerate_id(true);
         $_SESSION['admin'] = $admin;
+        $adminId = $admin->admin_id;
         header('Location: Admin.php');
         exit;
     }

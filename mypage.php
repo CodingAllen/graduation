@@ -218,6 +218,10 @@ include 'header.php';
         </form>
     </div>
     <div class="container my-4">
+         <!-- 通知页面跳转按钮 -->
+    <div class="text-center mb-4">
+        <a href="notifications.php" class="btn btn-primary">お知らせ履歴</a>
+    </div>
         <!-- 售出履历部分 -->
         <div class="row">
             <div class="col-lg-6">

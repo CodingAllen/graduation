@@ -86,7 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['new_goods_detail'], $_
     }
 }
 
-
+$cate = [
+    1 => '電子機器',
+    2 => '本・雑誌',
+    3 => '家具',
+    4 => '衣類',
+    5 => ' 食料品',
+    6 => 'スポーツ用品',
+    7 => 'おもちゃ'
+];
 
 $status_map = [
     1 => '新品',
@@ -127,6 +135,7 @@ if (isset($_GET['goods_id'])) {
     $userDAO = new UserDAO();
     $seller = $userDAO->get_user_by_id($goods->user_id);
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -265,6 +274,8 @@ if (isset($_GET['goods_id'])) {
                                 <a href="#" id="edit-price-link" onclick="showEditPriceForm()" class="btn btn-link">¥
                                     <?= number_format($goods->price) ?>
                                 </a>
+                            
+
                             <form id="edit-price-form" action="goods.php?goods_id=<?= $goods_id ?>" method="post"
                                 style="display:none;">
                                 <input type="hidden" name="goods_id" value="<?= $goods->goods_id ?>">
@@ -278,6 +289,9 @@ if (isset($_GET['goods_id'])) {
                         <?php endif; ?>
                         </p>
 
+                        <p class="card-text"><i class="fas fa-category"></i>カテゴリー:
+                            <?= $cate[$goods->category_id] ?? "未知" ?>
+                        </p>
                         <p class="card-text"><i class="fas fa-user"></i> 出品者:
                             <?= htmlspecialchars($seller->username) ?>
                         </p>

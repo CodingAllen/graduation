@@ -90,7 +90,7 @@ if (!empty($_SESSION['user'])) {
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach ($globalMessages as $gMessage) : ?>
-                                <a class="dropdown-item" href="mark_read.php?allnf_id=<?= $gMessage->allnf_id ?>">
+                                <a class="dropdown-item" href="notifications.php?allnf_id=<?= $gMessage->allnf_id ?>">
                                     <p>日電フリ事務局からのメッセージ：</p>
                                     <?= htmlspecialchars($gMessage->allnf) ?>
                                 </a>
@@ -101,7 +101,7 @@ if (!empty($_SESSION['user'])) {
 
                               
 
-                                <a class="dropdown-item" href="mark_read.php?notification_id=<?= $message->notification_id ?>">
+                                <a class="dropdown-item" href="notifications.php?notification_id=<?= $message->notification_id ?>">
                                     <p>日電フリ事務局からのメッセージ：</p>
                                     <?= htmlspecialchars($message->content) ?>
                                 </a>

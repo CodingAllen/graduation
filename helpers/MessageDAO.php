@@ -59,7 +59,38 @@ class MessageDAO {
         $stmt->bindValue(':allnf_id', $allnf_id, PDO::PARAM_INT);
         $stmt->execute();
     }
-        
+    public static function getAllPersonalNotifications($user_id) {
+        $dbh = DAO::get_db_connect();
+        $sql = "SELECT * FROM Notification WHERE user_id = :user_id";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public static function getAllGlobalNotifications($user_id) {
+        $dbh = DAO::get_db_connect();
+        $sql = "SELECT allnf.*, allnfstatus.user_id AS read_user 
+                FROM allnf 
+                LEFT JOIN allnfstatus ON allnf.allnf_id = allnfstatus.allnf_id AND allnfstatus.user_id = :user_id";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public static function getAllCommentsNotifications($user_id) {
+        $dbh = DAO::get_db_connect();
+        $sql = "SELECT Comment.*, goods.goods_name 
+                FROM Comment 
+                JOIN goods ON Comment.goods_id = goods.goods_id 
+                WHERE Comment.user_id = :user_id";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
 
     }
     

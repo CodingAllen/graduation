@@ -312,7 +312,7 @@ $categories = $goodsDAO->get_all_categories();
     <!-- 本社アクセス Section -->
     <div class="company-header">
         <img src="./images/WechatIMG41.jpg" alt="公司标志" class="company-logo">
-        <h3><a href="map.php">株式会社 誠(マコト)グループ</a></h3>
+        <h3><a href="map.php">株式会社 J グループ</a></h3>
     </div>
     <p>ビジネスの協力があれば、弊社にご相談ください。我们致力于提供最优质的服务。</p>
     <!-- 公司地图 -->

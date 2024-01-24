@@ -20,6 +20,8 @@ class Goods
     public ?string $order_date = null;
     public ?int $buyer_id = null; 
 
+ 
+
    
 }
 class Category {
@@ -112,20 +114,23 @@ class GoodsDAO
     
         return $stmt->fetchColumn(); // 返回第一列的值，即商品总数
     }
-   public function get_goods_by_keyword(String $keyword){
-    $dbh = DAO::get_db_connect();
-    $sql = "SELECT * FROM [Goods] WHERE goods_name LIKE :keyword  ORDER BY recommend DESC";
-    $stmt = $dbh->prepare($sql);
-    $stmt->bindValue(':keyword', '%' . $keyword . '%', PDO::PARAM_STR);
-    $stmt->execute();
-
-    $data = [];
-    while ($row = $stmt->fetchObject('Goods')) {
-        $data[] = $row;
+    public function get_goods_by_keyword($keyword) {
+        $dbh = DAO::get_db_connect();
+        $sql = "SELECT * FROM [Goods] WHERE goods_name LIKE :keyword ORDER BY recommend DESC";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindValue(':keyword', '%' . $keyword . '%', PDO::PARAM_STR);
+        $stmt->execute();
+    
+        $data = [];
+        while ($row = $stmt->fetchObject('Goods')) {
+            $data[] = $row;
+        }
+    
+        return $data;
     }
-
-    return $data;
-   }
+    
+    
+    
    public function get_all_categories() {
     $dbh = DAO::get_db_connect();
     $sql = "SELECT * FROM [Category]";
@@ -211,5 +216,45 @@ public function delete_goods(int $goods_id): bool {
         return false;
     }
 }
+
+// GoodsDAO.php
+
+// ... 他のメソッドの定義
+
+// GoodsDAO.php
+
+// ... 他のメソッドの定義
+
+// GoodsDAO.php
+
+// ... 他のメソッドの定義
+
+public function get_goods_by_date($page = 1, $perPage = 8, $category_id = null, $ascending = true) {
+    $dbh = DAO::get_db_connect();
+    $offset = ($page - 1) * $perPage;
+
+    $sql = "SELECT * FROM [Goods] WHERE stock = 1";
+    if ($category_id !== null) {
+        $sql .= " AND category_id = :category_id";
+    }
+    
+    // 新しい順または古い順によって ORDER BY 句を変更
+    $orderDirection = $ascending ? 'ASC' : 'DESC';
+    $sql .= " ORDER BY goods_id $orderDirection OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
+
+    $stmt = $dbh->prepare($sql);
+
+    if ($category_id !== null) {
+        $stmt->bindValue(':category_id', $category_id, PDO::PARAM_INT);
+    }
+    $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_CLASS, 'Goods');
+}
+
+
+
 }
 ?>

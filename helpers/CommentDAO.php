@@ -84,7 +84,7 @@ class CommentDAO{
         $dbh->exec("UPDATE Goods SET recommend = 0");
     
         // 获取每个商品的评论数（排除商品发布者的评论）
-        $sql = "SELECT TOP 9 g.goods_id, COUNT(*) as comment_count 
+        $sql = "SELECT TOP 10 g.goods_id, COUNT(*) as comment_count 
                 FROM Comment c 
                 JOIN Goods g ON c.goods_id = g.goods_id 
                 WHERE c.user_id != g.user_id 
