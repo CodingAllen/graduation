@@ -3,7 +3,10 @@ require_once './helpers/AdminDAO.php';
 require_once './helpers/GoodsDAO.php';
 require_once './helpers/UserDAO.php';
 session_start();
-
+// 生成 CSRF 令牌
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 // 确保管理员已经登录并获取其 ID
 if (isset($_SESSION['admin'])) {
     $admin = $_SESSION['admin'];
@@ -16,6 +19,9 @@ if (isset($_SESSION['admin'])) {
 
     // 处理 POST 请求（通知发送）
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die('CSRF token validation failed');
+        }
         $type = $_POST['type'];
         $content = $_POST['content'];
 
@@ -139,6 +145,8 @@ if (isset($_SESSION['admin'])) {
 
             <div id="notification-table" style="<?php echo $currentTabIndex === 2 ? 'display: block;' : 'display: none;'; ?>">
                 <form id="notification-form" method="post" action="Admin.php">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+    <input type="hidden" name="current_tab" value="<?php echo $currentTabIndex; ?>">
                     <input type="hidden" name="current_tab" value="<?php echo $currentTabIndex; ?>">
                     <div>
                         <label for="user-id">ユーザーid(個人通知だけ):</label>
